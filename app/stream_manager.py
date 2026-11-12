@@ -169,8 +169,11 @@ class ChannelBroadcaster:
         self._listeners.add(queue)
         logger.info("[%s] Listener connected (total=%d)", self.channel_id, len(self._listeners))
         try:
-            for buffered in list(self._recent_chunks):
-                yield buffered
+            snapshot = b"".join(self._recent_chunks)
+            if snapshot:
+                sync_idx = snapshot.find(b"\xff\xfb")
+                if sync_idx != -1:
+                    yield snapshot[sync_idx:]
             while True:
                 chunk = await queue.get()
                 yield chunk
