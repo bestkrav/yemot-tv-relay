@@ -55,39 +55,14 @@ async def _try_streamlink(page_url: str, referer: str) -> Optional[str]:
 
 
 async def resolve_ch14() -> ResolvedStream:
-    referer = "https://www.now14.co.il/"
+    referer = "https://tv.c14.co.il/"
     if settings.ch14_override_url:
         return ResolvedStream(url=settings.ch14_override_url, referer=referer)
 
-    candidate_pages = [
-        "https://www.now14.co.il/tochniot_meleot/%D7%A9%D7%99%D7%93%D7%95%D7%A8-%D7%97%D7%99/",
-        "https://www.now14.co.il/",
-        "https://www.c14.co.il/live",
-    ]
-
-    for page_url in candidate_pages:
-        sl_url = await _try_streamlink(page_url, referer)
-        if sl_url:
-            return ResolvedStream(url=sl_url, referer=referer)
-
-    headers = {
-        "User-Agent": settings.user_agent,
-        "Referer": referer,
-        "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
-    }
-    async with httpx.AsyncClient(timeout=12.0, follow_redirects=True) as client:
-        for page_url in candidate_pages:
-            try:
-                resp = await client.get(page_url, headers=headers)
-                if resp.status_code == 200:
-                    matches = M3U8_REGEX.findall(resp.text)
-                    if matches:
-                        logger.info("HTML extractor resolved CH14 from %s", page_url)
-                        return ResolvedStream(url=matches[0], referer=referer)
-            except Exception as exc:
-                logger.warning("CH14 fetch error on %s: %s", page_url, exc)
-
-    raise RuntimeError("Unable to resolve an active live stream URL for Channel 14")
+   return ResolvedStream(
+       url="https://r.il.cdn-redge.media/livehls/oil/ch14/live/now14/live.livx/playlist.m3u8?renditions",
+       referer=referer,
+   )
 
 
 async def resolve_ch12() -> ResolvedStream:
