@@ -2,7 +2,8 @@ import asyncio
 import contextlib
 import logging
 import time
-from typing import AsyncIterator, Awaitable, Callable, Dict, Set
+from collections import deque
+from typing import AsyncIterator, Awaitable, Callable, Deque, Dict, Set
 
 from app.config import settings
 from app.extractors import ResolvedStream, resolve_ch12, resolve_ch14
@@ -15,6 +16,7 @@ class ChannelBroadcaster:
         self.channel_id = channel_id
         self.resolver = resolver
         self._listeners: Set[asyncio.Queue[bytes]] = set()
+        self._recent_chunks: Deque[bytes] = deque(maxlen=6)
         self._task: asyncio.Task | None = None
         self._process: asyncio.subprocess.Process | None = None
         self._stop_event = asyncio.Event()
@@ -52,6 +54,7 @@ class ChannelBroadcaster:
                 await proc.wait()
 
     def _broadcast(self, chunk: bytes) -> None:
+        self._recent_chunks.append(chunk)
         for q in list(self._listeners):
             if q.full():
                 with contextlib.suppress(asyncio.QueueEmpty):
@@ -166,6 +169,8 @@ class ChannelBroadcaster:
         self._listeners.add(queue)
         logger.info("[%s] Listener connected (total=%d)", self.channel_id, len(self._listeners))
         try:
+            for buffered in list(self._recent_chunks):
+                yield buffered
             while True:
                 chunk = await queue.get()
                 yield chunk
