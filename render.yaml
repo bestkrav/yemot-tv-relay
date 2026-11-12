@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: yemot-tv-relay
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: AUDIO_BITRATE
+        value: 48k
+      - key: AUDIO_SAMPLE_RATE
+        value: 22050
+      - key: AUDIO_CHANNELS
+        value: "1"
+      - key: STALL_TIMEOUT_SEC
+        value: "8.0"
+      - key: RESTART_DELAY_SEC
+        value: "1.5"
