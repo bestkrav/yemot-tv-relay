@@ -30,7 +30,12 @@ STREAM_HEADERS = {
     "Pragma": "no-cache",
     "Expires": "0",
     "Connection": "keep-alive",
+    "Accept-Ranges": "none",
     "icy-name": "Yemot TV Live Relay",
+    "icy-br": "48",
+    "icy-sr": "22050",
+    "icy-channels": "1",
+    "icy-pub": "0",
 }
 
 
