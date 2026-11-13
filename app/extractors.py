@@ -59,7 +59,7 @@ async def resolve_ch14() -> ResolvedStream:
     if settings.ch14_override_url:
         return ResolvedStream(url=settings.ch14_override_url, referer=referer)
 
-   return ResolvedStream(
+       return ResolvedStream(
        url="https://r.il.cdn-redge.media/livehls/oil/ch14/live/now14/live.livx/playlist.m3u8?renditions",
        referer=referer,
    )
